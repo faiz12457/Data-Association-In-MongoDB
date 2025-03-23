@@ -69,6 +69,9 @@ app.post("/register", async (req, res) => {
   }
 });
 
+
+
+
 app.get("/token", (req, res) => {
   const { token } = req.cookies;
 
@@ -94,6 +97,32 @@ app.post("/login", async (req, res) => {
     res.redirect("/login");
   }
 });
+
+
+
+
+
+app.get("/like/:id",isLoggin,async(req,res)=>{
+    const {id}=req.params;
+    
+    const foundPost=await Post.findOne({_id:id});
+
+    if(!foundPost) return res.send("Error");
+   const {userId}=req.user;
+
+    if(foundPost.likes.indexOf(userId)===-1){
+        foundPost.likes.push(userId);
+    }
+    else{
+            foundPost.likes.splice(foundPost.likes.indexOf(userId),1);
+    }
+  
+  
+    await foundPost.save();
+    res.redirect("/profile")
+
+})
+
 
 app.listen(port, () => {
   console.log("Server is running on port 3000");
