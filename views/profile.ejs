@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body>
+    
+    <form action="/logout" method="get" class="flex justify-end w-full border bg-zinc-900 ">
+        <button type="submit" class="p-2 bg-blue-500 text-white  rounded">Logout</button>
+        </form>
+    <div class="w-full h-screen bg-zinc-900 flex flex-col items-center border justify-center gap-3">
+
+        <h3 class="text-white text-3xl">Hello <%= user.username %> </h3>
+        <h3 class="text-white text-3xl">You can create a new post</h3>
+
+        <form action="/post" method="post" class="flex flex-col gap-3 box-border items-center justify-center">
+
+                    <textarea  placeholder="Whats on your mind ?" name="content" class="  block w-[200px] resize-none bg-white rounded border outline-none p-2"></textarea>
+                    <button class="p-2 bg-blue-500 rounded border w-[100px]" type="submit">Submit</button>
+        </form>
+
+        <div class="text-white">
+    <h3 class="text-3xl">Your Posts</h3>
+      <div class="postCon mt-5 ">
+        <% user.posts.forEach((post) => { %>
+            <div class="w-[300px] mb-2 border-2 rounded-md bg-zinc-800 border-zinc-700 p-4">
+                <p class="text-blue-500 mb-2 inline-block"><%= user.username %></p>
+                <p class="text-sm tracking-tight"><%= post.postData %></p>
+                <div class="btn flex gap-4 mt-3">
+                    <a class="text-blue-500 inline-block" href="#">Like</a>
+                    <a class="text-blue-500 inline-block" href="#">Edit</a>
+                </div>
+            </div>
+        <% }) %>
+        
+                
+
+
+                
+ 
+
+      </div>
+
+    </div>
+
+
+
+    </div>
+</body>
+</html>
