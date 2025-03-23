@@ -8,11 +8,14 @@
 </head>
 <body>
     
-    <form action="/logout" method="get" class="flex justify-end w-full border bg-zinc-900 ">
+    <form action="/logout" method="get" class="flex justify-end w-full bg-zinc-900 ">
         <button type="submit" class="p-2 bg-blue-500 text-white  rounded">Logout</button>
         </form>
-    <div class="w-full h-screen bg-zinc-900 flex flex-col items-center border justify-center gap-3">
+    <div class="w-full h-screen bg-zinc-900 flex flex-col items-center  justify-center gap-3">
+        <div class="w-10 h-10 bg-blue-500 rounded-md">
+                    <img class="w-full h-full object-cover rounded-md" src="/images/<%= user.profilePic %>">
 
+        </div>
         <h3 class="text-white text-3xl">Hello <%= user.username %> </h3>
         <h3 class="text-white text-3xl">You can create a new post</h3>
 

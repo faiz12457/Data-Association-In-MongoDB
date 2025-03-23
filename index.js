@@ -6,6 +6,8 @@ import { Post } from "./models/post.js";
 import bodyParser from "body-parser";
 import jwt from "jsonwebtoken";
 import cookieParser from "cookie-parser";
+import multer from "multer";
+import { upload } from "./utils/multer.js";
 const saltrounds = 10;
 const port = 3000;
 
@@ -15,6 +17,10 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.set("view engine", "ejs");
 app.use(express.static("public"));
 await mongoose.connect("mongodb://localhost:27017/userDB");
+
+  
+
+
 
 app.get("/", async (req, res) => {
   res.render("index");
@@ -36,10 +42,35 @@ app.get("/profile", isLoggin, async (req, res) => {
   res.render("profile", { user });
 });
 
+
+app.get("/test",(req,res)=>{
+    res.render("test");
+})
+
+app.get("/profile/upload",(req,res)=>{
+    res.render("test");
+
+})
+app.post("/upload",isLoggin,upload.single("image"),async(req,res)=>{
+      const{filename}=req.file;
+      const {email}=req.user
+      const user=await User.findOne({email});
+
+      user.profilePic=filename;
+      await user.save();
+
+    
+    res.redirect("/profile");
+})
+
+
 app.post("/post", isLoggin, async (req, res) => {
   const finduser = await User.findOne({ email: req.user.email });
   const { email, _id } = finduser;
   const { content } = req.body;
+  if(!content){
+    return res.send("Content requried for Post");
+  }
 
   const newPost = new Post({ postData: content, user: _id });
   await newPost.save();
@@ -51,6 +82,11 @@ app.post("/post", isLoggin, async (req, res) => {
 
 app.post("/register", async (req, res) => {
   const { username, email, password, age } = req.body;
+
+  if(!username ||!email  || !password ||!age){
+    return res.send("All fields are requried");
+  }
+
   const user = await User.findOne({ email });
   if (user) {
     res.status(500).send("User with this email already exist");
@@ -65,22 +101,18 @@ app.post("/register", async (req, res) => {
     await newUser.save();
     const token = jwt.sign({ email, userId: newUser._id }, "thisisasecret");
     res.cookie("token", token);
-    res.send("registered");
+    res.redirect("/profile");
   }
 });
 
 
 
-
-app.get("/token", (req, res) => {
-  const { token } = req.cookies;
-
-  const decoded = jwt.verify(token, "thisisasecret");
-  res.send(decoded);
-});
-
 app.post("/login", async (req, res) => {
   const { email, password } = req.body;
+
+  if(!email ||! password){
+   return  res.send("all fields are requried");
+  }
 
   const user = await User.findOne({ email });
   if (!user) {
@@ -98,35 +130,39 @@ app.post("/login", async (req, res) => {
   }
 });
 
+app.get("/like/:id", isLoggin, async (req, res) => {
+  const { id } = req.params;
 
+  const foundPost = await Post.findOne({ _id: id });
 
+  if (!foundPost) return res.send("Error");
+  const { userId } = req.user;
 
+  if (foundPost.likes.indexOf(userId) === -1) {
+    foundPost.likes.push(userId);
+  } else {
+    foundPost.likes.splice(foundPost.likes.indexOf(userId), 1);
+  }
 
-app.get("/like/:id",isLoggin,async(req,res)=>{
-    const {id}=req.params;
-    
-    const foundPost=await Post.findOne({_id:id});
-
-    if(!foundPost) return res.send("Error");
-   const {userId}=req.user;
-
-    if(foundPost.likes.indexOf(userId)===-1){
-        foundPost.likes.push(userId);
-    }
-    else{
-            foundPost.likes.splice(foundPost.likes.indexOf(userId),1);
-    }
-  
-  
-    await foundPost.save();
-    res.redirect("/profile")
-
-})
-
+  await foundPost.save();
+  res.redirect("/profile");
+});
 
 app.listen(port, () => {
   console.log("Server is running on port 3000");
 });
+
+
+
+
+
+
+
+
+
+
+
+
 
 function isLoggin(req, res, next) {
   if (req.cookies.token == "") {
